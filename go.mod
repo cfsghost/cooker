@@ -1,4 +1,4 @@
-module cooker
+module github.com/cfsghost/cooker
 
 go 1.12
 
