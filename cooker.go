@@ -8,7 +8,7 @@ import (
 	"log"
 	"github.com/spf13/viper"
 
-	"cooker/module"
+	"github.com/cfsghost/cooker/module"
 )
 
 type AppInfo struct {
