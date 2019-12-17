@@ -12,7 +12,6 @@ import (
 )
 
 type ModuleManager struct {
-	app *App
 	modulePaths []string
 	modules map[string]*ModuleInfo
 	afterReady map[string]func()
@@ -25,9 +24,8 @@ type ModuleInfo struct {
 	Instance *Module
 }
 
-func CreateModuleManager(app *App) *ModuleManager {
+func CreateModuleManager() *ModuleManager {
 	return &ModuleManager{
-		app: app,
 		modules: make(map[string]*ModuleInfo),
 		afterReady: make(map[string]func()),
 	}
@@ -147,7 +145,7 @@ func (mg *ModuleManager) InitModule(moduleInfo *ModuleInfo) (*ModuleInfo, error)
 	}
 
 	// Getting initializer
-	initializer := symbol.(func(Module) (interface{}, error))
+	initializer := symbol.(func(*Module) (interface{}, error))
 	moduleIface, err := initializer(module)
 	if err != nil {
 		return nil, err
