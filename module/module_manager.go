@@ -9,8 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"plugin"
-	"github.com/spf13/viper"
-	"logagent/sdk/module"
 )
 
 type ModuleManager struct {
@@ -27,20 +25,12 @@ type ModuleInfo struct {
 	Instance *Module
 }
 
-func (mg *ModuleManager) Init(app *App) {
-
-	mg.app = app;
-	mg.modules = make(map[string]*ModuleInfo)
-	mg.afterReady = make(map[string]func())
-
-	// Module paths
-	mg.AddModulePath("./modules")
-	mg.AddModulePath("./out/modules")
-	mg.AddModulePath("/opt/" + organizationName + "/" + productName + "/" + projectName + "/modules")
-
-	// Load basic modules
-	modules := viper.GetStringSlice("general.modules")
-	mg.LoadModules(modules)
+func CreateModuleManager(app *App) *ModuleManager {
+	return &ModuleManager{
+		app: app,
+		modules: make(map[string]*ModuleInfo),
+		afterReady: make(map[string]func()),
+	}
 }
 
 func (mg *ModuleManager) AddModulePath(modulePath string) {
@@ -153,11 +143,11 @@ func (mg *ModuleManager) InitModule(moduleInfo *ModuleInfo) (*ModuleInfo, error)
 	module := &Module{
 		info: moduleInfo,
 		moduleManager: mg,
-		eventChannel: make(chan sdk_module.Event),
+		eventChannel: make(chan Event),
 	}
 
 	// Getting initializer
-	initializer := symbol.(func(sdk_module.ModuleCore) (interface{}, error))
+	initializer := symbol.(func(Module) (interface{}, error))
 	moduleIface, err := initializer(module)
 	if err != nil {
 		return nil, err
@@ -276,7 +266,7 @@ func (mg *ModuleManager) Broadcast(eventName string, payload interface{}) {
 
 	// TODO
 /*
-	event := sdk_module.Event{
+	event := Event{
 		Event: eventName,
 		Payload: payload,
 	}

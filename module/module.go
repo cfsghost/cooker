@@ -4,12 +4,17 @@ import (
 	"cooker/module"
 )
 
+type Event struct {
+	Event string
+	Payload interface{}
+}
+
 type Module struct {
 	info *ModuleInfo
 	iface interface{}
 	moduleManager *ModuleManager
 	externalModules map[string]interface{}
-	eventChannel chan sdk_module.Event
+	eventChannel chan Event
 }
 
 func (m *Module) SetInterface(iface interface{}) {
@@ -47,11 +52,11 @@ func (m *Module) GetExternalModule(name string) interface{} {
 	return value.GetInterface()
 }
 
-func (m *Module) GetEventChannel() (chan sdk_module.Event) {
+func (m *Module) GetEventChannel() (chan Event) {
 	return m.eventChannel
 }
 
-func (m *Module) Emit(event sdk_module.Event) {
+func (m *Module) Emit(event Event) {
 
 	go func() {
 		m.eventChannel <- event

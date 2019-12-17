@@ -21,13 +21,8 @@ type AppInfo struct {
 type App struct {
 	info AppInfo
 	isRunning chan bool
-	ModuleManager *module.ModuleManager
+	moduleManager *module.ModuleManager
 }
-
-const organizationName = ""
-const productName = "msghub"
-const projectName = "room"
-const programName = "room-message-receiver"
 
 func CreateApp(orgName string, productName string, projectName string, programName string) {
 
@@ -59,8 +54,14 @@ func (app *App) Init() error {
 	app.isRunning = make(chan bool)
 
 	// Initializing module manager
-	app.ModuleManager = &cooker.ModuleManager{}
-	app.ModuleManager.Init(app)
+	moduleManager := module.createModuleManager(app)
+
+	// Configuring module paths
+	moduleManager.AddModulePath("./modules")
+	moduleManager.AddModulePath("./out/modules")
+	moduleManager.AddModulePath("/opt/" + app.orgName + "/" + app.productName + "/" + app.projectName + "/modules")
+
+	app.moduleManager = moduleManager
 
 	return nil
 }
@@ -81,7 +82,7 @@ func (app *App) setInterruptHandler(sig int, fn func(*App)) {
 }
 
 func (app *App) GetModuleManager() *module.ModuleManager {
-	return app.ModuleManager
+	return app.moduleManager
 }
 
 func (app *App) Run() {
