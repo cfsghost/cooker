@@ -1,9 +1,5 @@
 package module
 
-import (
-	"cooker/module"
-)
-
 type Event struct {
 	Event string
 	Payload interface{}
